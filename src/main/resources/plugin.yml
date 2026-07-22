@@ -1,0 +1,7 @@
+name: spellwave
+version: '${version}'
+
+main: daxz.dev.spellwave.Spellwave
+bootstrapper: daxz.dev.spellwave.SpellwaveBootstrap
+api-version: '26.2'
+load: POSTWORLD
