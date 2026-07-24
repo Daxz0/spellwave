@@ -2,6 +2,7 @@ package daxz.dev.spellwave.Registry;
 
 
 import daxz.dev.spellwave.Spellwave;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -47,6 +48,13 @@ public class ItemRegistry {
      */
     public static ItemStack getItem(String id) {
         SpellwaveItem item = REGISTRY.get(id);
+
+        if (item == null) {
+            Material material = Material.matchMaterial(id);
+            ItemStack nullItem = ItemStack.of(material);
+            return nullItem != null ? nullItem : null;
+        }
+
         return item != null ? item.createItem() : null;
     }
 
