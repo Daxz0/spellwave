@@ -1,5 +1,6 @@
 package daxz.dev.spellwave;
 
+import daxz.dev.spellwave.Commands.ItemCommand;
 import daxz.dev.spellwave.Registry.EventRegister;
 import daxz.dev.spellwave.Registry.ItemRegistry;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -20,8 +21,7 @@ public final class Spellwave extends JavaPlugin {
         CustomBlockData.registerListener(this);
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
-            Object SpellwaveCommandHandler;
-//            commands.registrar().register(HauloverCommandHandler.haulover());
+            commands.registrar().register(ItemCommand.itemHelper());
         });
 
     }
