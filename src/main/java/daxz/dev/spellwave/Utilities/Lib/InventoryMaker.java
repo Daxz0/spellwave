@@ -24,11 +24,14 @@ public class InventoryMaker {
 //                .map(item -> itemRegistry.getItem(item))
 //                .toList();
 
+        int loop = 0;
+
         for(String item : items){
             ItemStack stack = itemRegistry.getItem(item);
             if (stack != null) {
-                inventory.addItem(stack);
+                inventory.setItem(loop, stack);
             }
+            loop++;
         }
 
         return inventory;

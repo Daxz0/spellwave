@@ -20,6 +20,7 @@ public class ImbuementTableInventory implements InventoryHolder {
                          "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane",
                          "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane",
                          "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane",
+                         "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane",
                          "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane"
                         }
         );

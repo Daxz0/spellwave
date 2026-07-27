@@ -16,6 +16,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Objects;
+
 public class ImbuementTableHandler implements Listener {
 
     private static NamespacedKey spellwaveItemID = new NamespacedKey(Spellwave.instance, "spellwaveItemID");
@@ -26,7 +28,9 @@ public class ImbuementTableHandler implements Listener {
 
         ItemStack item = event.getItemInHand();
 
-        if (item.getItemMeta().getPersistentDataContainer().get(spellwaveItemID, PersistentDataType.STRING).equals("imbuement_table")) {
+        Player player = event.getPlayer();
+
+        if (Objects.equals(item.getItemMeta().getPersistentDataContainer().get(spellwaveItemID, PersistentDataType.STRING), "imbuement_table")) {
             PersistentDataContainer imbuementTag = new CustomBlockData(event.getBlockPlaced(), Spellwave.instance);
             imbuementTag.set(imbuementTableTag, PersistentDataType.BOOLEAN, true);
         }
@@ -36,10 +40,10 @@ public class ImbuementTableHandler implements Listener {
     @EventHandler
     public void onPlayerRightClicksImbuementTable(PlayerInteractEvent event){
 
-
         PersistentDataContainer imbuementTag = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
 
         if (imbuementTag.getOrDefault(imbuementTableTag, PersistentDataType.BOOLEAN, false)){
+            event.setCancelled(true);
             Player player = event.getPlayer();
             ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
             player.openInventory(UI.getInventory());
