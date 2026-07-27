@@ -1,6 +1,7 @@
 package daxz.dev.spellwave.Items.Development;
 
 import daxz.dev.spellwave.Registry.SpellwaveItem;
+import daxz.dev.spellwave.Utilities.Flags.guiItem;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -8,6 +9,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
 public class InventoryPane implements SpellwaveItem {
@@ -25,6 +27,11 @@ public class InventoryPane implements SpellwaveItem {
 
         item.setData(DataComponentTypes.CUSTOM_NAME, Component.text(" ", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false));
 
+
+        item.editPersistentDataContainer(pdc -> {
+                pdc.set(guiItem.flag, PersistentDataType.BOOLEAN, true);
+            }
+        );
 
 
         return item;
