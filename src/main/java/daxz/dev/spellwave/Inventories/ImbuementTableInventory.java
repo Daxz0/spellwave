@@ -18,7 +18,7 @@ public class ImbuementTableInventory implements InventoryHolder {
                 new String[]
                         {"pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane",
                          "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane",
-                         "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane",
+                         "pane", "pane", "pane", "pane", "air", "pane", "pane", "pane", "pane",
                          "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane",
                          "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane",
                          "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane", "pane"
