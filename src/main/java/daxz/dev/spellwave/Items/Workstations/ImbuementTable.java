@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 
-public abstract class ImbuementTable implements SpellwaveItem {
+public class ImbuementTable implements SpellwaveItem {
 
 
     @Override
@@ -67,6 +67,7 @@ public abstract class ImbuementTable implements SpellwaveItem {
 //        recipe.setIngredient('I', Material.IRON_INGOT);
 //        recipe.setIngredient('B', Material.BUCKET);
 
-        return recipe;
+//        return recipe;
+        return null;
     }
 }

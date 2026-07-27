@@ -16,16 +16,16 @@ public class ItemCommand {
 
         root.then(
                 Commands.literal("give")
-                        .requires(sender -> sender.getSender().hasPermission("itemhelper.give"))
+                        .requires(sender -> sender.getSender().hasPermission("itemHelper.give"))
                         .then(
-                                Commands.argument("item", StringArgumentType.word())
+                                Commands.argument("give", StringArgumentType.word())
                                         .suggests((ctx, builder) -> {
                                             ItemRegistry.getRegisteredItems().keySet().forEach(builder::suggest);
                                             return builder.buildFuture();
                                         })
                                         .executes(ctx -> {
                                             if (ctx.getSource().getSender() instanceof Player player) {
-                                                ItemRegistry.giveItem(player, ctx.getArgument("item", String.class));
+                                                ItemRegistry.giveItem(player, ctx.getArgument("give", String.class));
                                             }
                                             return 1;
                                         })

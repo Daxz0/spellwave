@@ -20,9 +20,6 @@ public interface SpellwaveItem {
      */
     ItemStack createItem();
 
-
-    ItemStack createItem(String color);
-
     /**
      * gets the recipe
      * @return ShapedRecipe

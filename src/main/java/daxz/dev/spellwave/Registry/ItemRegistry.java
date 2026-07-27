@@ -1,6 +1,8 @@
 package daxz.dev.spellwave.Registry;
 
 
+import daxz.dev.spellwave.Items.Development.InventoryPane;
+import daxz.dev.spellwave.Items.Workstations.ImbuementTable;
 import daxz.dev.spellwave.Spellwave;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -20,7 +22,8 @@ public class ItemRegistry {
      */
     public static void registerItems() {
 
-//        register(BasicWateringCan.INSTANCE);
+        register(new InventoryPane());
+        register(new ImbuementTable());
 
 
     }
