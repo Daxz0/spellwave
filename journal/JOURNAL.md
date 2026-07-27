@@ -48,4 +48,19 @@ now the problem i face is, how can i add logic to the spells??
 - say i want to explosion to activate only if the bolt hits something
 - i could use the imbuement table for this??
 - or, a different workstation that allows you to fuse modifiers together, creating new effects when used to well, modify things
-- i think thats the better appraoch here
+- i think thats the better approach here
+
+
+shower thought/alternative idea:
+- each circle of the imbuement is another "layer" of the spell
+- for example, the first layer could be fire charges + amethyst in order to create a fireball
+- then after the first layer is completed, the second layer of the spell will begin
+- then the third
+- etc
+- this is balanced out by the fact that each layer it requires more resources??
+- should also maybe charge XP to imbue, more expensive for each layer
+- maybe some sort of leveling system too, like you need to upgrade your imbuement setup
+
+so with this new proposed system, i could have a single amethyst shard with 3 fire charges to create a really short ranged fireball, then have firework stars on the second layer to create a massive explosion after the bolt is completed.
+
+this will also allow me to give an "end logic" to each modifier item?? where amethyst shard for example will stop and move to the next layer if it hits a block/target or it expires, whilst a prismarine shard could be an ethereal bolt that doesnt have an end condition other than expiration.

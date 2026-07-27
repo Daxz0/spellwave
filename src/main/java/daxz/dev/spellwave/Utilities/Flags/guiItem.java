@@ -16,6 +16,7 @@ public class guiItem implements Listener {
     public void preventGuiItemClick(InventoryClickEvent event) {
         if (!event.getInventory().equals(event.getWhoClicked().getOpenInventory().getTopInventory())) return;
         ItemStack item = event.getCurrentItem();
+        assert item != null;
         if (item.getItemMeta().getPersistentDataContainer().getOrDefault(flag, PersistentDataType.BOOLEAN, false)) event.setCancelled(true);
     }
 
