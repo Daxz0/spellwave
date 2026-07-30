@@ -79,7 +79,7 @@ public class ImbuementTableHandler implements Listener {
     @EventHandler
     public void onPlayerRightClicksImbuementTable(PlayerInteractEvent event){
 
-        assert event.getClickedBlock() != null;
+        if (event.getClickedBlock() == null) return;
         PersistentDataContainer imbuementTag = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
 
         if (imbuementTag.getOrDefault(imbuementTableTag, PersistentDataType.BOOLEAN, false) && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
