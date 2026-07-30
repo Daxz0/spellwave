@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -29,6 +30,7 @@ public class ImbuementTableHandler implements Listener {
     private static NamespacedKey spellwaveItemID = new NamespacedKey(Spellwave.instance, "spellwaveItemID");
     private static NamespacedKey imbuementTableTag = new NamespacedKey(Spellwave.instance, "imbuementTableTag");
     private static NamespacedKey highlightEntitiesKey = new NamespacedKey(Spellwave.instance, "imbuementTableEntities");
+    private static NamespacedKey imbuementInteraction = new NamespacedKey(Spellwave.instance, "imbuementInteraction");
 
     @EventHandler
     public void onPlayerPlacesImbuementTable(BlockPlaceEvent event){
@@ -99,6 +101,13 @@ public class ImbuementTableHandler implements Listener {
 
     }
 
+    @EventHandler
+    public void onPlayerRightClicksImbuementInteraction(PlayerInteractAtEntityEvent event){
+        Entity entity = event.getRightClicked();
+        if (entity.getType() == EntityType.INTERACTION && entity.getOrDefault()) {
+
+        }
+    }
 
     private boolean detectValidImbuementArea(Block imbuementTable) {
 
