@@ -2,10 +2,7 @@ package daxz.dev.spellwave.Events.Workstations;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import daxz.dev.spellwave.Inventories.ImbuementTableInventory;
-import daxz.dev.spellwave.Items.Workstations.ImbuementTable;
 import daxz.dev.spellwave.Spellwave;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
@@ -14,7 +11,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -26,11 +22,13 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class ImbuementTableHandler implements Listener {
 
     private static NamespacedKey spellwaveItemID = new NamespacedKey(Spellwave.instance, "spellwaveItemID");
     private static NamespacedKey imbuementTableTag = new NamespacedKey(Spellwave.instance, "imbuementTableTag");
+    private static NamespacedKey highlightEntitiesKey = new NamespacedKey(Spellwave.instance, "imbuementTableEntities");
 
     @EventHandler
     public void onPlayerPlacesImbuementTable(BlockPlaceEvent event){
@@ -43,6 +41,34 @@ public class ImbuementTableHandler implements Listener {
             PersistentDataContainer imbuementTag = new CustomBlockData(event.getBlockPlaced(), Spellwave.instance);
             imbuementTag.set(imbuementTableTag, PersistentDataType.BOOLEAN, true);
         }
+
+    }
+
+    @EventHandler
+    public void onPlayerBreaksImbuementTable(BlockBreakEvent event){
+
+        PersistentDataContainer imbuementTag = new CustomBlockData(event.getBlock(), Spellwave.instance);
+        if (imbuementTag.getOrDefault(imbuementTableTag, PersistentDataType.BOOLEAN, false)){
+            PersistentDataContainer entitiesTag = new CustomBlockData(event.getBlock(), Spellwave.instance);
+            List<String> uuidStrings = entitiesTag.getOrDefault(
+                    highlightEntitiesKey,
+                    PersistentDataType.LIST.strings(),
+                    new ArrayList<>()
+            );
+
+            for (String uuidStr : uuidStrings) {
+                try {
+                    UUID uuid = UUID.fromString(uuidStr);
+                    Entity entity = Bukkit.getEntity(uuid);
+                    if (entity != null) {
+                        entity.remove();
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+
+        }
+
 
     }
 
@@ -60,7 +86,6 @@ public class ImbuementTableHandler implements Listener {
                 player.openInventory(UI.getInventory());
             }
             else{
-                player.sendMessage("smth broke yo -- FIX THIS LATER, ADD SOME EFFECTS/PARTICLES OR SUM");
                 Particle.ANGRY_VILLAGER.builder()
                         .location(event.getClickedBlock().getLocation().add(0,1,0))
                         .offset(0.5,0.5,0.5)
@@ -110,30 +135,46 @@ public class ImbuementTableHandler implements Listener {
             return false;
         }
 
-        for (Block block : validBlocks) {
-            highlightBlockEdges(block, Material.WHITE_CONCRETE);
+        List<String> finalList = new ArrayList<>();
+
+        PersistentDataContainer entitiesTag = new CustomBlockData(imbuementTable, Spellwave.instance);
+        if (!entitiesTag.getOrDefault(highlightEntitiesKey, PersistentDataType.LIST.strings(), new ArrayList<>()).isEmpty()){
+            return true;
         }
+        for (Block block : validBlocks) {
+            for (BlockDisplay display : highlightBlockEdges(block)) {
+                finalList.add(display.getUniqueId().toString());
+            }
+            Interaction interaction = spawnInteract(block);
+            finalList.add(interaction.getUniqueId().toString());
+        }
+
+
+        entitiesTag.set(highlightEntitiesKey, PersistentDataType.LIST.strings(), finalList);
 
         return true;
     }
 
-    private void highlightBlockEdges(Block target, Material mat) {
+    private List<BlockDisplay> highlightBlockEdges(Block target) {
         Location origin = target.getLocation();
         World world = origin.getWorld();
 
         float t = 0.06f;
 
+        List<BlockDisplay> output = new ArrayList<>();
+
         for (int z = 0; z <= 1; z++) {
-            spawnEdge(world, origin, new Vector3f(0, 1 - t / 2f, z - t / 2f), new Vector3f(1, t, t), mat);
+            output.add(spawnEdge(world, origin, new Vector3f(0, 1 - t / 2f, z - t / 2f), new Vector3f(1, t, t), Material.WHITE_CONCRETE));
         }
 
         for (int x = 0; x <= 1; x++) {
-            spawnEdge(world, origin, new Vector3f(x - t / 2f, 1 - t / 2f, 0), new Vector3f(t, t, 1), mat);
+            output.add(spawnEdge(world, origin, new Vector3f(x - t / 2f, 1 - t / 2f, 0), new Vector3f(t, t, 1), Material.WHITE_CONCRETE));
         }
 
+        return output;
     }
 
-    private void spawnEdge(World world, Location origin, Vector3f translation, Vector3f scale, Material mat) {
+    private BlockDisplay spawnEdge(World world, Location origin, Vector3f translation, Vector3f scale, Material mat) {
         BlockDisplay edge = (BlockDisplay) world.spawnEntity(origin, EntityType.BLOCK_DISPLAY);
         edge.setBlock(mat.createBlockData());
 
@@ -148,6 +189,19 @@ public class ImbuementTableHandler implements Listener {
         edge.setBrightness(new Display.Brightness(15, 15));
         edge.setInterpolationDuration(0);
         edge.setShadowRadius(0);
+
+        return edge;
+    }
+
+    private Interaction spawnInteract(Block target) {
+        Location center = target.getLocation().add(0.5, 1, 0.5);
+
+        Interaction interaction = (Interaction) target.getWorld().spawnEntity(center, EntityType.INTERACTION);
+        interaction.setInteractionWidth(1.0f);
+        interaction.setInteractionHeight(0.1f);
+        interaction.setResponsive(true);
+
+        return interaction;
     }
 
 
