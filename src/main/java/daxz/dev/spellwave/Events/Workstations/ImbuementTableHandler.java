@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
@@ -31,6 +32,7 @@ public class ImbuementTableHandler implements Listener {
     private static NamespacedKey imbuementTableTag = new NamespacedKey(Spellwave.instance, "imbuementTableTag");
     private static NamespacedKey highlightEntitiesKey = new NamespacedKey(Spellwave.instance, "imbuementTableEntities");
     private static NamespacedKey imbuementInteraction = new NamespacedKey(Spellwave.instance, "imbuementInteraction");
+    private static NamespacedKey imbuementItems = new NamespacedKey(Spellwave.instance, "imbuementItems");
 
     @EventHandler
     public void onPlayerPlacesImbuementTable(BlockPlaceEvent event){
@@ -104,9 +106,47 @@ public class ImbuementTableHandler implements Listener {
     @EventHandler
     public void onPlayerRightClicksImbuementInteraction(PlayerInteractAtEntityEvent event){
         Entity entity = event.getRightClicked();
-        if (entity.getType() == EntityType.INTERACTION && entity.getOrDefault()) {
 
+        if (entity.getType() != EntityType.INTERACTION
+                || entity.getPersistentDataContainer().getOrDefault(imbuementInteraction, PersistentDataType.STRING, "").isBlank()) {
+            return;
         }
+
+        Player player = event.getPlayer();
+        String storedUuid = entity.getPersistentDataContainer().getOrDefault(imbuementItems, PersistentDataType.STRING, "");
+
+        if (!storedUuid.isBlank()) {
+            UUID uuid = UUID.fromString(storedUuid);
+            Entity storedEntity = Bukkit.getEntity(uuid);
+
+            if (storedEntity instanceof Item itemEntity) {
+                ItemStack stack = itemEntity.getItemStack();
+                if (stack.getType() != Material.AIR && stack.getAmount() > 0) {
+                    player.give(stack);
+                }
+                itemEntity.remove();
+            }
+
+            entity.getPersistentDataContainer().remove(imbuementItems);
+            return;
+        }
+
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (item.getType() == Material.AIR) return;
+
+        ItemStack newItem = item.clone();
+        newItem.setAmount(1);
+
+        if (item.getAmount() <= 1) {
+            player.getInventory().setItemInMainHand(null);
+        } else {
+            item.setAmount(item.getAmount() - 1);
+        }
+
+        Item droppedItem = player.getWorld().dropItem(entity.getLocation(), newItem);
+        entity.getPersistentDataContainer().set(imbuementItems, PersistentDataType.STRING, droppedItem.getUniqueId().toString());
+        droppedItem.setPickupDelay(Integer.MAX_VALUE);
+        droppedItem.setVelocity(new Vector(0, 0, 0));
     }
 
     private boolean detectValidImbuementArea(Block imbuementTable) {
@@ -155,6 +195,7 @@ public class ImbuementTableHandler implements Listener {
                 finalList.add(display.getUniqueId().toString());
             }
             Interaction interaction = spawnInteract(block);
+            interaction.getPersistentDataContainer().set(imbuementInteraction, PersistentDataType.STRING, imbuementTable.getLocation().toString());
             finalList.add(interaction.getUniqueId().toString());
         }
 

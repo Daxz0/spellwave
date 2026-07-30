@@ -1,6 +1,7 @@
+# journal of doom and despair
 hello, journaling for fun why not!!
 
-
+## brainstorming
 here are some of the basic ideas for this project, just so i can keep it outlined/streamlined and i know what i'm looking at!!
 
 ![img.png](img.png)
@@ -33,7 +34,7 @@ the pros of inventory ui is that its a lot easier to visaulize, but the in world
 
 i think in-world is actually so much harder to implement, as cool as it is, id rather do it in an inventory and then have a super cool animation after in-world
 
-
+## finalizing ideas
 ok. here is the new thing:
 ![img_1.png](img_1.png)
 
@@ -64,3 +65,58 @@ shower thought/alternative idea:
 so with this new proposed system, i could have a single amethyst shard with 3 fire charges to create a really short ranged fireball, then have firework stars on the second layer to create a massive explosion after the bolt is completed.
 
 this will also allow me to give an "end logic" to each modifier item?? where amethyst shard for example will stop and move to the next layer if it hits a block/target or it expires, whilst a prismarine shard could be an ethereal bolt that doesnt have an end condition other than expiration.
+i think i rather add an end logic modifier item instead of adding it onto the existing modifier items. (what a wordful)
+
+
+## building it!
+
+ok!!
+![img_2.png](img_2.png)
+i got the pick and place system working, now its time to finalize this system
+i got some feedback from a friend!! (thank you cat)
+
+if you have an emerald in your spell layer, the next layer will act exclusively as ONLY spell modifiers
+
+if you have a netherite ingot in your spell layer, the next layer will be COMBINED with your existing spell layer
+
+i might want to make it so that it requires more resources the more layers youre combing together too just for balance
+
+items will bring pros and cons, so you have to kinda balance them out (inspired by binding of the saac)
+
+now establishing some "primary items":
+### primary items
+- elemental items (these give the spell appearances and elemental effects)
+- casting item (these change up how your spell is cast, and then moves)
+- layer modifier (these change how the spell layer interacts with other spell layers)
+- spell modifier (these change how casting modifiers are basically)
+- specific modifiers (only apply in specific scenarios fun i know)
+
+#### big list of item examples for now (so i have a list to work with and make)
+##### elemental items:
+more of these = more intense
+
+i dont even know if i want these at all i mean can spice shit up
+- fire charge: flame
+- ice: ice
+- redstone: blood!!
+
+##### casting item:
+more of these = priority? (how would i handle multiple of these in one layer? i guess just run both!!)
+
+for example, if i have equal amounts of amethyst and heart of the seas, it will just do both.
+
+but if theres more amethyst, there will be circles coming out of the line and vice versa??
+- amethsyt shard: straight line
+- heart of the sea: circle
+
+##### layer modifier:
+can only have one of these? in each layer
+- emerald: the next layer will only accept spell modifiers
+- netherite: the next layer will expand to connect to the current layer basically
+
+##### spell modifier:
+changes shit
+- feather: spell tends to go up
+- cobblestone: the spell tends to go down
+- rabbit foot: the spell goes faster
+- 
