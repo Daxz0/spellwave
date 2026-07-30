@@ -64,7 +64,24 @@ public class ImbuementTableHandler implements Listener {
                 try {
                     UUID uuid = UUID.fromString(uuidStr);
                     Entity entity = Bukkit.getEntity(uuid);
+
                     if (entity != null) {
+                        if (entity.getType() == EntityType.INTERACTION
+                                && !entity.getPersistentDataContainer().getOrDefault(imbuementItems, PersistentDataType.STRING, "").isEmpty()) {
+
+                            UUID droppedItemUUID = UUID.fromString(Objects.requireNonNull(
+                                    entity.getPersistentDataContainer().get(imbuementItems, PersistentDataType.STRING)));
+                            Entity droppedItemEntity = Bukkit.getEntity(droppedItemUUID);
+
+                            if (droppedItemEntity instanceof Item item) {
+                                item.setPickupDelay(25);
+                                item.setVelocity(item.getLocation().subtract(event.getBlock().getLocation()).toVector().add(new Vector(0,0.8,0)).multiply(new Vector(0.15,1,0.15)));
+                                Particle.EXPLOSION.builder()
+                                        .location(event.getBlock().getLocation().add(0,1,0))
+                                        .offset(0.1,0.1,0.1)
+                                        .spawn();
+                            }
+                        }
                         entity.remove();
                     }
                 } catch (IllegalArgumentException ignored) {
@@ -146,6 +163,7 @@ public class ImbuementTableHandler implements Listener {
         Item droppedItem = player.getWorld().dropItem(entity.getLocation(), newItem);
         entity.getPersistentDataContainer().set(imbuementItems, PersistentDataType.STRING, droppedItem.getUniqueId().toString());
         droppedItem.setPickupDelay(Integer.MAX_VALUE);
+        droppedItem.setUnlimitedLifetime(true);
         droppedItem.setVelocity(new Vector(0, 0, 0));
     }
 
