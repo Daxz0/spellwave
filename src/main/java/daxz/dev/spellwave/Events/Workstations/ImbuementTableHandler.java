@@ -27,12 +27,15 @@ import java.util.*;
 
 public class ImbuementTableHandler implements Listener {
 
-    private static NamespacedKey spellwaveItemID = new NamespacedKey(Spellwave.instance, "spellwaveItemID");
-    private static NamespacedKey imbuementTableTag = new NamespacedKey(Spellwave.instance, "imbuementTableTag");
-    private static NamespacedKey highlightEntitiesKey = new NamespacedKey(Spellwave.instance, "imbuementTableEntities");
-    private static NamespacedKey imbuementInteraction = new NamespacedKey(Spellwave.instance, "imbuementInteraction");
-    private static NamespacedKey imbuementItems = new NamespacedKey(Spellwave.instance, "imbuementItems");
-    private static NamespacedKey imbuementCentralItem = new NamespacedKey(Spellwave.instance, "imbuementCentralItem");
+    private static final NamespacedKey spellwaveItemID = new NamespacedKey(Spellwave.instance, "spellwaveItemID");
+    private static final NamespacedKey imbuementTableTag = new NamespacedKey(Spellwave.instance, "imbuementTableTag");
+    private static final NamespacedKey highlightEntitiesKey = new NamespacedKey(Spellwave.instance, "imbuementTableEntities");
+    private static final NamespacedKey imbuementInteraction = new NamespacedKey(Spellwave.instance, "imbuementInteraction");
+    private static final NamespacedKey imbuementItems = new NamespacedKey(Spellwave.instance, "imbuementItems");
+    private static final NamespacedKey imbuementCentralItem = new NamespacedKey(Spellwave.instance, "imbuementCentralItem");
+    private static final NamespacedKey imbuementItemRing = new NamespacedKey(Spellwave.instance, "imbuementItemRing");
+
+    private List<Player> ratelimit = new ArrayList<>();
 
     @EventHandler
     public void onPlayerPlacesImbuementTable(BlockPlaceEvent event){
@@ -58,6 +61,20 @@ public class ImbuementTableHandler implements Listener {
                     PersistentDataType.LIST.strings(),
                     new ArrayList<>()
             );
+
+            PersistentDataContainer centralItem = new CustomBlockData(event.getBlock(), Spellwave.instance);
+            if (!centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
+                UUID itemUUID = UUID.fromString(Objects.requireNonNull(centralItem.get(imbuementCentralItem, PersistentDataType.STRING)));
+                Entity entity = Bukkit.getEntity(itemUUID);
+                if (entity != null) {
+                    if (entity instanceof Item item) {
+                        item.setPickupDelay(50);
+                        item.setGravity(false);
+                        item.setVelocity(new Vector(0, -0.1, 0));
+                        centralItem.set(imbuementCentralItem, PersistentDataType.STRING, "");
+                    }
+                }
+            }
 
             for (String uuidStr : uuidStrings) {
                 try {
@@ -98,17 +115,29 @@ public class ImbuementTableHandler implements Listener {
     @EventHandler
     public void onPlayerRightClicksImbuementTable(PlayerInteractEvent event){
 
+
+
         if (event.getClickedBlock() == null) return;
         PersistentDataContainer imbuementTag = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
 
         if (imbuementTag.getOrDefault(imbuementTableTag, PersistentDataType.BOOLEAN, false) && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            event.setCancelled(true);
             Player player = event.getPlayer();
+            if (ratelimit.contains(player)) return;
+            ratelimit.add(player);
+            Bukkit.getScheduler().runTaskLater(Spellwave.instance, () -> ratelimit.remove(player), 2L);
+
+            event.setCancelled(true);
 
             if (player.isSneaking()) {
                 PersistentDataContainer centralItem = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
                 if (!centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
-                    // swap and replace code later
+                    UUID itemUUID = UUID.fromString(Objects.requireNonNull(centralItem.get(imbuementCentralItem, PersistentDataType.STRING)));
+                    Entity entity = Bukkit.getEntity(itemUUID);
+                    if (entity instanceof Item item) {
+                        item.setPickupDelay(0);
+                        item.setGravity(true);
+                    }
+                    centralItem.set(imbuementCentralItem, PersistentDataType.STRING, "");
                     return;
                 }
                 if (PlayerItemHelper.takeHandItem(player)) return;
@@ -122,29 +151,32 @@ public class ImbuementTableHandler implements Listener {
                 droppedItem.setPersistent(true);
                 droppedItem.setVelocity(new Vector(0,0,0));
 
-                Bukkit.getScheduler().runTaskTimer(Spellwave.instance, () -> {
-                    Particle.ENCHANT.builder()
-                            .location(event.getClickedBlock().getLocation().add(0.5, 3, 0.5))
-                            .count(25)
-                            .offset(0.4, 1, 0.4)
-                            .spawn();
-                }, 5L, 20L);
+//                Bukkit.getScheduler().runTaskTimer(Spellwave.instance, () -> {
+//                    Particle.ENCHANT.builder()
+//                            .location(event.getClickedBlock().getLocation().add(0.5, 3, 0.5))
+//                            .count(25)
+//                            .offset(0.4, 1, 0.4)
+//                            .spawn();
+//                }, 5L, 1L);
 
                 Bukkit.getScheduler().runTaskLater(Spellwave.instance, () -> {
                     droppedItem.setGravity(false);
-                    droppedItem.setVelocity(new Vector(0,0.0001,0));
+                    droppedItem.setVelocity(new Vector(0,0.001,0));
                     Bukkit.getScheduler().runTaskLater(Spellwave.instance, () -> {
                         if (!droppedItem.isDead()) {
                             droppedItem.setVelocity(new Vector(0, 0, 0));
                         }
-                    }, 8);
-                }, 2L);
+                    }, 10L);
+                }, 1L);
             }
             else{
                 ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
                 if (detectValidImbuementArea(event.getClickedBlock())){
-                    player.openInventory(UI.getInventory());
+//                    player.openInventory(UI.getInventory());
+                    //run spell check here
+                    return;
                 }
+
                 else{
                     Particle.ANGRY_VILLAGER.builder()
                             .location(event.getClickedBlock().getLocation().add(0,1,0))
@@ -170,6 +202,9 @@ public class ImbuementTableHandler implements Listener {
         }
 
         Player player = event.getPlayer();
+        if (ratelimit.contains(player)) return;
+        ratelimit.add(player);
+        Bukkit.getScheduler().runTaskLater(Spellwave.instance, () -> ratelimit.remove(player), 2L);
         String storedUuid = entity.getPersistentDataContainer().getOrDefault(imbuementItems, PersistentDataType.STRING, "");
 
         if (!storedUuid.isBlank()) {
@@ -190,7 +225,7 @@ public class ImbuementTableHandler implements Listener {
 
         if (PlayerItemHelper.takeHandItem(player)) return;
         ItemStack newItem = player.getInventory().getItemInMainHand().clone();
-
+        newItem.setAmount(1);
         Item droppedItem = player.getWorld().dropItem(entity.getLocation(), newItem);
         entity.getPersistentDataContainer().set(imbuementItems, PersistentDataType.STRING, droppedItem.getUniqueId().toString());
         droppedItem.setPickupDelay(Integer.MAX_VALUE);
@@ -198,9 +233,6 @@ public class ImbuementTableHandler implements Listener {
         droppedItem.setVelocity(new Vector(0, 0, 0));
     }
 
-    private void detectSpellLayerRecipe(){
-        return;
-    }
 
     private boolean detectValidImbuementArea(Block imbuementTable) {
 
@@ -209,7 +241,7 @@ public class ImbuementTableHandler implements Listener {
         int minRings = 1;
         int maxRings = 7;
 
-        List<Block> validBlocks = new ArrayList<>();
+        Map<Block, Integer> validBlocks = new LinkedHashMap<>();
         int depthReached = 0;
 
         if (scanningLoc.getBlock().getType() != Material.AMETHYST_BLOCK) return false;
@@ -229,7 +261,9 @@ public class ImbuementTableHandler implements Listener {
                 break;
             }
 
-            validBlocks.addAll(ring);
+            for (Block block : ring) {
+                validBlocks.put(block, i);
+            }
             depthReached = i;
         }
 
@@ -240,18 +274,24 @@ public class ImbuementTableHandler implements Listener {
         List<String> finalList = new ArrayList<>();
 
         PersistentDataContainer entitiesTag = new CustomBlockData(imbuementTable, Spellwave.instance);
-        if (!entitiesTag.getOrDefault(highlightEntitiesKey, PersistentDataType.LIST.strings(), new ArrayList<>()).isEmpty()){
+        if (!entitiesTag.getOrDefault(highlightEntitiesKey, PersistentDataType.LIST.strings(), new ArrayList<>()).isEmpty()) {
             return true;
         }
-        for (Block block : validBlocks) {
+
+        for (Map.Entry<Block, Integer> entry : validBlocks.entrySet()) {
+            Block block = entry.getKey();
+            int ringLayer = entry.getValue();
+
             for (BlockDisplay display : highlightBlockEdges(block)) {
                 finalList.add(display.getUniqueId().toString());
             }
+            PersistentDataContainer blockTag = new CustomBlockData(block, Spellwave.instance);
+            blockTag.set(imbuementItemRing, PersistentDataType.INTEGER, ringLayer); //hopefully just gets overriden when a new one is placed
             Interaction interaction = spawnInteract(block);
             interaction.getPersistentDataContainer().set(imbuementInteraction, PersistentDataType.STRING, imbuementTable.getLocation().toString());
+            interaction.getPersistentDataContainer().set(imbuementItemRing, PersistentDataType.INTEGER, ringLayer);
             finalList.add(interaction.getUniqueId().toString());
         }
-
 
         entitiesTag.set(highlightEntitiesKey, PersistentDataType.LIST.strings(), finalList);
 
@@ -308,7 +348,7 @@ public class ImbuementTableHandler implements Listener {
     }
 
 
-    private List<Block> getRing(Location center, int layer){
+    public static List<Block> getRing(Location center, int layer){
         List<Block> ring = new ArrayList<>();
         World world = center.getWorld();
         int cx = center.getBlockX();
