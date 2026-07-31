@@ -4,6 +4,7 @@ import com.jeff_media.customblockdata.CustomBlockData;
 import daxz.dev.spellwave.Inventories.ImbuementTableInventory;
 import daxz.dev.spellwave.Registry.ItemRegistry;
 import daxz.dev.spellwave.Spellwave;
+import daxz.dev.spellwave.Utilities.Lib.PlayerItemHelper;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
@@ -106,8 +107,16 @@ public class ImbuementTableHandler implements Listener {
 
             if (player.isSneaking()){
                 PersistentDataContainer centralItem = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
-                centralItem.set(imbuementCentralItem, PersistentDataType.BOOLEAN, true);
 
+                if (PlayerItemHelper.takeHandItem(player)) return;
+                ItemStack newItem = player.getInventory().getItemInMainHand().clone();
+
+                Item droppedItem = player.getWorld().dropItem(event.getClickedBlock().getLocation().add(0,0.5,0), newItem);
+                droppedItem.setVelocity(new Vector(0,0.15,0));
+                droppedItem.setGravity(false);
+                droppedItem.setPickupDelay(Integer.MAX_VALUE);
+                droppedItem.setPersistent(true);
+                centralItem.set(imbuementCentralItem, PersistentDataType.STRING, droppedItem.getUniqueId().toString());
                 return;
             }
 
@@ -129,6 +138,7 @@ public class ImbuementTableHandler implements Listener {
         }
 
     }
+
 
     @EventHandler
     public void onPlayerRightClicksImbuementInteraction(PlayerInteractAtEntityEvent event){
@@ -158,17 +168,8 @@ public class ImbuementTableHandler implements Listener {
             return;
         }
 
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() == Material.AIR) return;
-
-        ItemStack newItem = item.clone();
-        newItem.setAmount(1);
-
-        if (item.getAmount() <= 1) {
-            player.getInventory().setItemInMainHand(null);
-        } else {
-            item.setAmount(item.getAmount() - 1);
-        }
+        if (PlayerItemHelper.takeHandItem(player)) return;
+        ItemStack newItem = player.getInventory().getItemInMainHand().clone();
 
         Item droppedItem = player.getWorld().dropItem(entity.getLocation(), newItem);
         entity.getPersistentDataContainer().set(imbuementItems, PersistentDataType.STRING, droppedItem.getUniqueId().toString());

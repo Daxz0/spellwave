@@ -2,6 +2,7 @@ package daxz.dev.spellwave.Registry;
 
 
 import daxz.dev.spellwave.Items.Development.InventoryPane;
+import daxz.dev.spellwave.Items.Extruders.Tablet;
 import daxz.dev.spellwave.Items.Workstations.ImbuementTable;
 import daxz.dev.spellwave.Spellwave;
 import org.bukkit.Material;
@@ -24,6 +25,7 @@ public class ItemRegistry {
 
         register(new InventoryPane());
         register(new ImbuementTable());
+        register(new Tablet());
 
 
     }

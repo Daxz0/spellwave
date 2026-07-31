@@ -9,5 +9,6 @@ public enum CastingModifierKey {
     DURATION,
     DAMAGE,
     START_LOC,
-    END_LOC
+    END_LOC,
+    PARTICLE
 }

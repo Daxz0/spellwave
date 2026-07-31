@@ -26,7 +26,7 @@ public class InventoryPane implements SpellwaveItem {
 
     @Override
     public ItemStack createItem() {
-        Material material = Material.BLACK_BANNER;
+        Material material = Material.BLACK_STAINED_GLASS_PANE;
         ItemStack item = new ItemStack(material);
 
         item.setData(DataComponentTypes.CUSTOM_NAME, Component.text(" ", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false));
