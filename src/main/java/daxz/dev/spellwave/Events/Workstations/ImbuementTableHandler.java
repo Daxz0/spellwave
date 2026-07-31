@@ -105,38 +105,51 @@ public class ImbuementTableHandler implements Listener {
             event.setCancelled(true);
             Player player = event.getPlayer();
 
-            if (player.isSneaking()){
+            if (player.isSneaking()) {
                 PersistentDataContainer centralItem = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
-
+                if (centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
+                    // swap and replace code later
+                    return;
+                }
                 if (PlayerItemHelper.takeHandItem(player)) return;
                 ItemStack newItem = player.getInventory().getItemInMainHand().clone();
+                newItem.setAmount(1);
 
-                Item droppedItem = player.getWorld().dropItem(event.getClickedBlock().getLocation().add(0,0.5,0), newItem);
-                droppedItem.setVelocity(new Vector(0,0.15,0));
-                droppedItem.setGravity(false);
+                Item droppedItem = player.getWorld().dropItem(event.getClickedBlock().getLocation().add(0.5,0,0.5), newItem);
+                centralItem.set(imbuementCentralItem, PersistentDataType.STRING, droppedItem.getUniqueId().toString());
+
                 droppedItem.setPickupDelay(Integer.MAX_VALUE);
                 droppedItem.setPersistent(true);
-                centralItem.set(imbuementCentralItem, PersistentDataType.STRING, droppedItem.getUniqueId().toString());
-                return;
-            }
 
 
-            ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
-            if (detectValidImbuementArea(event.getClickedBlock())){
-                player.openInventory(UI.getInventory());
+                droppedItem.setVelocity(new Vector(0,0,0));
+                Bukkit.getScheduler().runTaskLater(Spellwave.instance, () -> {
+                    droppedItem.setGravity(false);
+                    droppedItem.setVelocity(new Vector(0,0.01,0));
+                }, 2L);
+                Bukkit.getScheduler().runTaskLater(Spellwave.instance, () -> {
+                    if (!droppedItem.isDead()) {
+                        droppedItem.setVelocity(new Vector(0, 0, 0));
+                    }
+                }, 2L);
             }
             else{
-                Particle.ANGRY_VILLAGER.builder()
-                        .location(event.getClickedBlock().getLocation().add(0,1,0))
-                        .offset(0.5,0.5,0.5)
-                        .count(10)
-                        .spawn();
+                ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
+                if (detectValidImbuementArea(event.getClickedBlock())){
+                    player.openInventory(UI.getInventory());
+                }
+                else{
+                    Particle.ANGRY_VILLAGER.builder()
+                            .location(event.getClickedBlock().getLocation().add(0,1,0))
+                            .offset(0.5,0.5,0.5)
+                            .count(10)
+                            .spawn();
 
 
 
+                }
             }
         }
-
     }
 
 
