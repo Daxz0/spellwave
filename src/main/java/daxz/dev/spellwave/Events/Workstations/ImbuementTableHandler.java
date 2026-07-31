@@ -107,7 +107,7 @@ public class ImbuementTableHandler implements Listener {
 
             if (player.isSneaking()) {
                 PersistentDataContainer centralItem = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
-                if (centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
+                if (!centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
                     // swap and replace code later
                     return;
                 }
@@ -115,22 +115,29 @@ public class ImbuementTableHandler implements Listener {
                 ItemStack newItem = player.getInventory().getItemInMainHand().clone();
                 newItem.setAmount(1);
 
-                Item droppedItem = player.getWorld().dropItem(event.getClickedBlock().getLocation().add(0.5,0,0.5), newItem);
+                Item droppedItem = player.getWorld().dropItem(event.getClickedBlock().getLocation().add(0.5,0.5,0.5), newItem);
                 centralItem.set(imbuementCentralItem, PersistentDataType.STRING, droppedItem.getUniqueId().toString());
 
                 droppedItem.setPickupDelay(Integer.MAX_VALUE);
                 droppedItem.setPersistent(true);
-
-
                 droppedItem.setVelocity(new Vector(0,0,0));
+
+                Bukkit.getScheduler().runTaskTimer(Spellwave.instance, () -> {
+                    Particle.ENCHANT.builder()
+                            .location(event.getClickedBlock().getLocation().add(0.5, 3, 0.5))
+                            .count(25)
+                            .offset(0.4, 1, 0.4)
+                            .spawn();
+                }, 5L, 20L);
+
                 Bukkit.getScheduler().runTaskLater(Spellwave.instance, () -> {
                     droppedItem.setGravity(false);
-                    droppedItem.setVelocity(new Vector(0,0.01,0));
-                }, 2L);
-                Bukkit.getScheduler().runTaskLater(Spellwave.instance, () -> {
-                    if (!droppedItem.isDead()) {
-                        droppedItem.setVelocity(new Vector(0, 0, 0));
-                    }
+                    droppedItem.setVelocity(new Vector(0,0.0001,0));
+                    Bukkit.getScheduler().runTaskLater(Spellwave.instance, () -> {
+                        if (!droppedItem.isDead()) {
+                            droppedItem.setVelocity(new Vector(0, 0, 0));
+                        }
+                    }, 8);
                 }, 2L);
             }
             else{
