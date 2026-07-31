@@ -1,4 +1,4 @@
-package daxz.dev.haulover.Utilities.Lib;
+package daxz.dev.spellwave.Utilities.Lib;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;

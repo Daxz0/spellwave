@@ -2,6 +2,7 @@ package daxz.dev.spellwave.Events.Workstations;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import daxz.dev.spellwave.Inventories.ImbuementTableInventory;
+import daxz.dev.spellwave.Registry.ItemRegistry;
 import daxz.dev.spellwave.Spellwave;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -21,10 +22,7 @@ import org.bukkit.util.Vector;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class ImbuementTableHandler implements Listener {
 
@@ -33,13 +31,12 @@ public class ImbuementTableHandler implements Listener {
     private static NamespacedKey highlightEntitiesKey = new NamespacedKey(Spellwave.instance, "imbuementTableEntities");
     private static NamespacedKey imbuementInteraction = new NamespacedKey(Spellwave.instance, "imbuementInteraction");
     private static NamespacedKey imbuementItems = new NamespacedKey(Spellwave.instance, "imbuementItems");
+    private static NamespacedKey imbuementCentralItem = new NamespacedKey(Spellwave.instance, "imbuementCentralItem");
 
     @EventHandler
     public void onPlayerPlacesImbuementTable(BlockPlaceEvent event){
 
         ItemStack item = event.getItemInHand();
-
-        Player player = event.getPlayer();
 
         if (Objects.equals(item.getItemMeta().getPersistentDataContainer().get(spellwaveItemID, PersistentDataType.STRING), "imbuement_table")) {
             PersistentDataContainer imbuementTag = new CustomBlockData(event.getBlockPlaced(), Spellwave.instance);
@@ -47,6 +44,7 @@ public class ImbuementTableHandler implements Listener {
         }
 
     }
+
 
     @EventHandler
     public void onPlayerBreaksImbuementTable(BlockBreakEvent event){
@@ -88,6 +86,9 @@ public class ImbuementTableHandler implements Listener {
                 }
             }
 
+            event.setDropItems(false);
+            Item drop = event.getPlayer().getWorld().dropItem(event.getBlock().getLocation(), Objects.requireNonNull(ItemRegistry.getItem("imbuement_table")));
+            drop.setVelocity(new Vector(0,0.1,0));
         }
 
 
@@ -102,6 +103,15 @@ public class ImbuementTableHandler implements Listener {
         if (imbuementTag.getOrDefault(imbuementTableTag, PersistentDataType.BOOLEAN, false) && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             event.setCancelled(true);
             Player player = event.getPlayer();
+
+            if (player.isSneaking()){
+                PersistentDataContainer centralItem = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
+                centralItem.set(imbuementCentralItem, PersistentDataType.BOOLEAN, true);
+
+                return;
+            }
+
+
             ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
             if (detectValidImbuementArea(event.getClickedBlock())){
                 player.openInventory(UI.getInventory());
@@ -165,6 +175,10 @@ public class ImbuementTableHandler implements Listener {
         droppedItem.setPickupDelay(Integer.MAX_VALUE);
         droppedItem.setUnlimitedLifetime(true);
         droppedItem.setVelocity(new Vector(0, 0, 0));
+    }
+
+    private void detectSpellLayerRecipe(){
+        return;
     }
 
     private boolean detectValidImbuementArea(Block imbuementTable) {

@@ -26,7 +26,7 @@ public class ImbuementTable implements SpellwaveItem {
         return "imbuement_table";
     }
 
-    private static NamespacedKey spellwaveItemID =new NamespacedKey(Spellwave.instance, "spellwaveItemID");
+    private static final NamespacedKey spellwaveItemID = new NamespacedKey(Spellwave.instance, "spellwaveItemID");
 
     @Override
     public ItemStack createItem() {

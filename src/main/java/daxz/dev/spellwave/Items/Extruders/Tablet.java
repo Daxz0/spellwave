@@ -1,8 +1,8 @@
-package daxz.dev.spellwave.Items.Development;
+package daxz.dev.spellwave.Items.Extruders;
 
 import daxz.dev.spellwave.Registry.SpellwaveItem;
 import daxz.dev.spellwave.Spellwave;
-import daxz.dev.spellwave.Utilities.Flags.guiItem;
+import daxz.dev.spellwave.Utilities.Lib.LoreTool;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -14,33 +14,40 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
-public class InventoryPane implements SpellwaveItem {
+public class Tablet implements SpellwaveItem {
 
-    private static NamespacedKey spellwaveItemID =new NamespacedKey(Spellwave.instance, "spellwaveItemID");
 
+    private static final NamespacedKey spellwaveItemID = new NamespacedKey(Spellwave.instance, "spellwaveItemID");
 
     @Override
     public String getID() {
-        return "pane";
+        return "tablet";
     }
 
     @Override
     public ItemStack createItem() {
         Material material = Material.BLACK_BANNER;
-        ItemStack item = new ItemStack(material);
+        ItemStack item = ItemStack.of(material);
 
-        item.setData(DataComponentTypes.CUSTOM_NAME, Component.text(" ", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false));
+
+
+        item.setData(DataComponentTypes.CUSTOM_NAME, Component.text("Imbuement Tablet", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false));
+
+//        LoreTool.lore(item,
+//                "<dark_gray> Enables you to start imbuing things.",
+//                "<dark_gray><st>                                          </st>",
+//                "<white>\uD83C\uDF31 <bold>Workstation"
+//        );
+
 
 
         item.editPersistentDataContainer(pdc -> {
-                pdc.set(guiItem.flag, PersistentDataType.BOOLEAN, true);
-            }
-        );
+            pdc.set(spellwaveItemID, PersistentDataType.STRING, getID());
+        });
 
 
         return item;
     }
-
 
     @Override
     public @Nullable ShapedRecipe getRecipe() {
