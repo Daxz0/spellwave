@@ -1,6 +1,7 @@
 package daxz.dev.spellwave.Events.Workstations;
 
 import com.jeff_media.customblockdata.CustomBlockData;
+import daxz.dev.spellwave.ImbuementSystem.SpellHandler.SpellLayer;
 import daxz.dev.spellwave.Inventories.ImbuementTableInventory;
 import daxz.dev.spellwave.Registry.ItemRegistry;
 import daxz.dev.spellwave.Spellwave;
@@ -128,8 +129,8 @@ public class ImbuementTableHandler implements Listener {
 
             event.setCancelled(true);
 
+            PersistentDataContainer centralItem = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
             if (player.isSneaking()) {
-                PersistentDataContainer centralItem = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
                 if (!centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
                     UUID itemUUID = UUID.fromString(Objects.requireNonNull(centralItem.get(imbuementCentralItem, PersistentDataType.STRING)));
                     Entity entity = Bukkit.getEntity(itemUUID);
@@ -171,9 +172,13 @@ public class ImbuementTableHandler implements Listener {
             }
             else{
                 ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
-                if (detectValidImbuementArea(event.getClickedBlock())){
-//                    player.openInventory(UI.getInventory());
+                int layers = detectValidImbuementArea(event.getClickedBlock());
+                if (layers > 0){
                     //run spell check here
+
+                    SpellLayer.completeRecipe(event.getClickedBlock(), player, layers);
+
+
 
                     return;
                 }
@@ -235,7 +240,7 @@ public class ImbuementTableHandler implements Listener {
     }
 
 
-    private boolean detectValidImbuementArea(Block imbuementTable) {
+    private int detectValidImbuementArea(Block imbuementTable) {
 
         Location scanningLoc = imbuementTable.getLocation().add(0, -1, 0);
 
@@ -269,14 +274,14 @@ public class ImbuementTableHandler implements Listener {
         }
 
         if (depthReached < minRings) {
-            return false;
+            return 0;
         }
 
         List<String> finalList = new ArrayList<>();
 
         PersistentDataContainer entitiesTag = new CustomBlockData(imbuementTable, Spellwave.instance);
         if (!entitiesTag.getOrDefault(highlightEntitiesKey, PersistentDataType.LIST.strings(), new ArrayList<>()).isEmpty()) {
-            return true;
+            return depthReached;
         }
 
         for (Map.Entry<Block, Integer> entry : validBlocks.entrySet()) {
@@ -296,7 +301,7 @@ public class ImbuementTableHandler implements Listener {
 
         entitiesTag.set(highlightEntitiesKey, PersistentDataType.LIST.strings(), finalList);
 
-        return true;
+        return depthReached;
     }
 
     private List<BlockDisplay> highlightBlockEdges(Block target) {
