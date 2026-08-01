@@ -13,11 +13,8 @@ public class PlayerItemHelper {
         ItemStack newItem = item.clone();
         newItem.setAmount(1);
 
-        if (item.getAmount() <= 1) {
-            player.getInventory().setItemInMainHand(null);
-        } else {
-            item.setAmount(item.getAmount() - 1);
-        }
+        item.setAmount(item.getAmount() - 1);
+
         return false;
     }
 
