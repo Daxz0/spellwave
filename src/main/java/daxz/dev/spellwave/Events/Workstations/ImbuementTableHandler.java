@@ -27,13 +27,13 @@ import java.util.*;
 
 public class ImbuementTableHandler implements Listener {
 
-    private static final NamespacedKey spellwaveItemID = new NamespacedKey(Spellwave.instance, "spellwaveItemID");
-    private static final NamespacedKey imbuementTableTag = new NamespacedKey(Spellwave.instance, "imbuementTableTag");
-    private static final NamespacedKey highlightEntitiesKey = new NamespacedKey(Spellwave.instance, "imbuementTableEntities");
-    private static final NamespacedKey imbuementInteraction = new NamespacedKey(Spellwave.instance, "imbuementInteraction");
-    private static final NamespacedKey imbuementItems = new NamespacedKey(Spellwave.instance, "imbuementItems");
-    private static final NamespacedKey imbuementCentralItem = new NamespacedKey(Spellwave.instance, "imbuementCentralItem");
-    private static final NamespacedKey imbuementItemRing = new NamespacedKey(Spellwave.instance, "imbuementItemRing");
+    public static final NamespacedKey spellwaveItemID = new NamespacedKey(Spellwave.instance, "spellwaveItemID");
+    public static final NamespacedKey imbuementTableTag = new NamespacedKey(Spellwave.instance, "imbuementTableTag");
+    public static final NamespacedKey highlightEntitiesKey = new NamespacedKey(Spellwave.instance, "imbuementTableEntities");
+    public static final NamespacedKey imbuementInteraction = new NamespacedKey(Spellwave.instance, "imbuementInteraction");
+    public static final NamespacedKey imbuementItems = new NamespacedKey(Spellwave.instance, "imbuementItems");
+    public static final NamespacedKey imbuementCentralItem = new NamespacedKey(Spellwave.instance, "imbuementCentralItem");
+    public static final NamespacedKey imbuementItemRing = new NamespacedKey(Spellwave.instance, "imbuementItemRing");
 
     private List<Player> ratelimit = new ArrayList<>();
 
@@ -174,6 +174,7 @@ public class ImbuementTableHandler implements Listener {
                 if (detectValidImbuementArea(event.getClickedBlock())){
 //                    player.openInventory(UI.getInventory());
                     //run spell check here
+
                     return;
                 }
 
