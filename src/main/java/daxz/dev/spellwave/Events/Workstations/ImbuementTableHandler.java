@@ -122,8 +122,8 @@ public class ImbuementTableHandler implements Listener {
                     dropCentralItem(event.getClickedBlock());
                     return;
                 }
-                if (PlayerItemHelper.takeHandItem(player)) return;
-                ItemStack newItem = player.getInventory().getItemInMainHand().clone();
+                ItemStack newItem = PlayerItemHelper.takeHandItem(player);
+                if (newItem == null) return;
                 newItem.setAmount(1);
 
                 Item droppedItem = player.getWorld().dropItem(event.getClickedBlock().getLocation().add(0.5,0.5,0.5), newItem);
@@ -241,8 +241,8 @@ public class ImbuementTableHandler implements Listener {
             return;
         }
 
-        if (PlayerItemHelper.takeHandItem(player)) return;
-        ItemStack newItem = player.getInventory().getItemInMainHand().clone();
+        ItemStack newItem = PlayerItemHelper.takeHandItem(player);
+        if (newItem == null) return;
         newItem.setAmount(1);
         Item droppedItem = player.getWorld().dropItem(entity.getLocation(), newItem);
         entity.getPersistentDataContainer().set(imbuementItems, PersistentDataType.STRING, droppedItem.getUniqueId().toString());

@@ -6,16 +6,26 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlayerItemHelper {
 
-    public static boolean takeHandItem(Player player) {
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() == Material.AIR) return true;
+    /**
+     * Takes 1 item from the player's main hand and returns a new ItemStack of amount 1.
+     * If hand is empty, returns null.
+     */
+    public static ItemStack takeHandItem(Player player) {
+        ItemStack handItem = player.getInventory().getItemInMainHand();
 
-        ItemStack newItem = item.clone();
-        newItem.setAmount(1);
+        if (handItem.getType() == Material.AIR || handItem.getAmount() <= 0) {
+            return null;
+        }
 
-        item.setAmount(item.getAmount() - 1);
+        ItemStack singleItem = handItem.clone();
+        singleItem.setAmount(1);
 
-        return false;
+        if (handItem.getAmount() > 1) {
+            handItem.setAmount(handItem.getAmount() - 1);
+        } else {
+            player.getInventory().setItemInMainHand(null);
+        }
+
+        return singleItem;
     }
-
 }
