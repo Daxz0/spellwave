@@ -5,6 +5,7 @@ import daxz.dev.spellwave.ImbuementSystem.Modifiers.CastingModifiers.CastingModi
 import daxz.dev.spellwave.ImbuementSystem.Modifiers.SpellModifierEffect;
 import daxz.dev.spellwave.Registry.SpellRegistry;
 import daxz.dev.spellwave.Spellwave;
+import daxz.dev.spellwave.Utilities.Lib.LoreTool;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -18,6 +19,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static daxz.dev.spellwave.Events.Workstations.ImbuementTableHandler.imbuementCentralItem;
 
@@ -46,24 +48,50 @@ public class SpellRecipe {
         PersistentDataAdapterContext context = itemPDC.getAdapterContext();
 
         List<PersistentDataContainer> layerContainers = new ArrayList<>();
+        List<String> loreLines = new ArrayList<>();
 
         for (Map.Entry<Integer, List<ItemStack>> layerEntry : items.entrySet()) {
+            int layerIndex = layerEntry.getKey();
             List<ItemStack> layerItems = layerEntry.getValue();
 
-            List<String> castingMaterials = new ArrayList<>();
+            List<String> castingCandidates = new ArrayList<>();
             Map<CastingModifierKey, Float> aggregatedModifiers = new EnumMap<>(CastingModifierKey.class);
 
             for (ItemStack ringItem : layerItems) {
                 Material type = ringItem.getType();
 
                 if (SpellRegistry.hasCastingModifier(type)) {
-                    castingMaterials.add(type.name());
+                    castingCandidates.add(type.name());
                 }
 
                 if (SpellRegistry.hasSpellModifier(type)) {
                     for (SpellModifierEffect effect : SpellRegistry.getModifierEffects(type)) {
                         aggregatedModifiers.merge(effect.key(), effect.value(), Float::sum);
                     }
+                }
+            }
+
+            List<String> castingMaterials = new ArrayList<>();
+            if (!castingCandidates.isEmpty()) {
+                String chosen = castingCandidates.size() == 1
+                        ? castingCandidates.getFirst()
+                        : castingCandidates.get(ThreadLocalRandom.current().nextInt(castingCandidates.size()));
+                castingMaterials.add(chosen);
+            }
+
+            if (!castingMaterials.isEmpty() || !aggregatedModifiers.isEmpty()) {
+                loreLines.add("<gray><bold>Layer " + layerIndex);
+
+                if (!castingMaterials.isEmpty()) {
+                    loreLines.add("  <white>Casting: <aqua>" + formatMaterialName(castingMaterials.getFirst()));
+                }
+
+                for (Map.Entry<CastingModifierKey, Float> modEntry : aggregatedModifiers.entrySet()) {
+                    float value = modEntry.getValue();
+                    String color = value >= 0 ? "<green>" : "<red>";
+                    String sign = value >= 0 ? "+" : "";
+                    loreLines.add("  <white>" + formatKeyName(modEntry.getKey()) + ": "
+                            + color + sign + trimTrailingZero(value) + "<reset>");
                 }
             }
 
@@ -85,16 +113,38 @@ public class SpellRecipe {
         itemPDC.set(imbuementLayers, PersistentDataType.LIST.dataContainers(), layerContainers);
 
         itemStack.setItemMeta(meta);
+        if (!loreLines.isEmpty()) {
+            LoreTool.lore(itemStack, loreLines.toArray(new String[0]));
+        }
         item.setItemStack(itemStack);
 
-        imbuementTablePDC.set(imbuementCentralItem, PersistentDataType.STRING, "");
     }
 
-    public static List<PersistentDataContainer> getLayers(ItemStack itemStack) {
-        ItemMeta meta = itemStack.getItemMeta();
-        if (meta == null) return List.of();
-        PersistentDataContainer itemPDC = meta.getPersistentDataContainer();
-        List<PersistentDataContainer> layers = itemPDC.get(imbuementLayers, PersistentDataType.LIST.dataContainers());
-        return layers == null ? List.of() : layers;
+    private static String formatKeyName(CastingModifierKey key) {
+        String[] words = key.name().split("_");
+        StringBuilder sb = new StringBuilder();
+        for (String word : words) {
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(word.charAt(0)).append(word.substring(1).toLowerCase());
+        }
+        return sb.toString();
     }
+
+    private static String formatMaterialName(String materialName) {
+        String[] words = materialName.split("_");
+        StringBuilder sb = new StringBuilder();
+        for (String word : words) {
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(word.charAt(0)).append(word.substring(1).toLowerCase());
+        }
+        return sb.toString();
+    }
+
+    private static String trimTrailingZero(float value) {
+        if (value == Math.floor(value)) {
+            return String.valueOf((int) value);
+        }
+        return String.valueOf(value);
+    }
+
 }

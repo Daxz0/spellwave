@@ -58,19 +58,7 @@ public class ImbuementTableHandler implements Listener {
         PersistentDataContainer imbuementTag = new CustomBlockData(event.getBlock(), Spellwave.instance);
         if (imbuementTag.getOrDefault(imbuementTableTag, PersistentDataType.BOOLEAN, false)){
 
-            PersistentDataContainer centralItem = new CustomBlockData(event.getBlock(), Spellwave.instance);
-            if (!centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
-                UUID itemUUID = UUID.fromString(Objects.requireNonNull(centralItem.get(imbuementCentralItem, PersistentDataType.STRING)));
-                Entity entity = Bukkit.getEntity(itemUUID);
-                if (entity != null) {
-                    if (entity instanceof Item item) {
-                        item.setPickupDelay(50);
-                        item.setGravity(false);
-                        item.setVelocity(new Vector(0, -0.1, 0));
-                        centralItem.set(imbuementCentralItem, PersistentDataType.STRING, "");
-                    }
-                }
-            }
+            dropCentralItem(event.getBlock());
 
             PersistentDataContainer entitiesTag = new CustomBlockData(event.getBlock(), Spellwave.instance);
             List<String> uuidStrings = entitiesTag.getOrDefault(
@@ -167,14 +155,14 @@ public class ImbuementTableHandler implements Listener {
                 ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
                 int maxLayers = detectValidImbuementArea(event.getClickedBlock());
                 if (maxLayers > 0 && !centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
+
                     SpellLayers layers = new SpellLayers(event.getClickedBlock(), player, maxLayers);
                     SpellRecipe.createRecipe(event.getClickedBlock(), layers.getRingItemsRegistry());
 
                     //TODO future animation effect after finishing the spell
-
-
-                    //drops finished item
                     dropCentralItem(event.getClickedBlock());
+                    //drops finished item
+
                     PersistentDataContainer entitiesTag = new CustomBlockData(event.getClickedBlock(), Spellwave.instance);
                     List<String> uuidStrings = entitiesTag.getOrDefault(
                             highlightEntitiesKey,
@@ -268,7 +256,7 @@ public class ImbuementTableHandler implements Listener {
         Location scanningLoc = imbuementTable.getLocation().add(0, -1, 0);
 
         int minRings = 1;
-        int maxRings = 1; //TODO lets just get 1 ring working for now
+        int maxRings = 2; //TODO lets just get 1-2 rings working for now
 
         Map<Block, Integer> validBlocks = new LinkedHashMap<>();
         int depthReached = 0;
