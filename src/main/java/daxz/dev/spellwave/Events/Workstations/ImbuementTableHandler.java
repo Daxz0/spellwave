@@ -191,6 +191,7 @@ public class ImbuementTableHandler implements Listener {
                         } catch (IllegalArgumentException ignored) {
                         }
                     }
+                    entitiesTag.set(highlightEntitiesKey, PersistentDataType.LIST.strings(), new ArrayList<>());
                     return;
                 }
 

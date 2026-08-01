@@ -1,6 +1,7 @@
 package daxz.dev.spellwave.ImbuementSystem.SpellHandler;
 
 import com.jeff_media.customblockdata.CustomBlockData;
+import daxz.dev.spellwave.ImbuementSystem.Modifiers.CastingModifiers.CastingModifier;
 import daxz.dev.spellwave.ImbuementSystem.Modifiers.CastingModifiers.CastingModifierKey;
 import daxz.dev.spellwave.ImbuementSystem.Modifiers.SpellModifierEffect;
 import daxz.dev.spellwave.Registry.SpellRegistry;
@@ -61,7 +62,8 @@ public class SpellRecipe {
                 Material type = ringItem.getType();
 
                 if (SpellRegistry.hasCastingModifier(type)) {
-                    castingCandidates.add(type.name());
+                    Class<? extends CastingModifier> modifierClass = SpellRegistry.getCastingModifier(type);
+                    castingCandidates.add(modifierClass.getSimpleName());
                 }
 
                 if (SpellRegistry.hasSpellModifier(type)) {
@@ -83,7 +85,7 @@ public class SpellRecipe {
                 loreLines.add("<gray><bold>Layer " + layerIndex);
 
                 if (!castingMaterials.isEmpty()) {
-                    loreLines.add("  <white>Casting: <aqua>" + formatMaterialName(castingMaterials.getFirst()));
+                    loreLines.add("  <aqua>" + castingMaterials.getFirst());
                 }
 
                 for (Map.Entry<CastingModifierKey, Float> modEntry : aggregatedModifiers.entrySet()) {
@@ -130,15 +132,6 @@ public class SpellRecipe {
         return sb.toString();
     }
 
-    private static String formatMaterialName(String materialName) {
-        String[] words = materialName.split("_");
-        StringBuilder sb = new StringBuilder();
-        for (String word : words) {
-            if (sb.length() > 0) sb.append(" ");
-            sb.append(word.charAt(0)).append(word.substring(1).toLowerCase());
-        }
-        return sb.toString();
-    }
 
     private static String trimTrailingZero(float value) {
         if (value == Math.floor(value)) {
