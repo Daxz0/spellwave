@@ -28,16 +28,6 @@ public class SpellLayers {
 
     public SpellLayers(Block imbuementTable, Player player, int layers){
 
-        PersistentDataContainer tableTag = new CustomBlockData(imbuementTable, Spellwave.instance);
-
-        String centralUuidStr = tableTag.getOrDefault(ImbuementTableHandler.imbuementCentralItem, PersistentDataType.STRING, "");
-        if (centralUuidStr.isEmpty()) return;
-
-        Entity centralEntity = Bukkit.getEntity(UUID.fromString(centralUuidStr));
-        if (!(centralEntity instanceof Item centralItemEntity)) return;
-
-        ItemStack centralItem = centralItemEntity.getItemStack();
-
         for (int i = 1; i < layers; i++) {
             List<Block> ring = getRing(imbuementTable.getLocation(), i);
             List<ItemStack> ringItemsRegisterList = new ArrayList<>();
