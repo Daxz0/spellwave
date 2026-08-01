@@ -39,7 +39,7 @@ public class SpellLayers {
                 if (entity instanceof Item item) {
 
                     ItemStack itemStack = item.getItemStack();
-                    if (!SpellRegistry.hasCastingModifier(itemStack.getType()) || !SpellRegistry.hasSpellModifier(itemStack.getType())) continue; //skip if the item doesnt do anything
+                    if (!SpellRegistry.hasCastingModifier(itemStack.getType()) && !SpellRegistry.hasSpellModifier(itemStack.getType())) continue; //skip if the item doesnt do anything
                     ringItemsRegisterList.add(itemStack);
                 }
             }

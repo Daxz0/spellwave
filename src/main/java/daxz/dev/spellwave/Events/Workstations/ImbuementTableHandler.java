@@ -2,6 +2,7 @@ package daxz.dev.spellwave.Events.Workstations;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import daxz.dev.spellwave.ImbuementSystem.SpellHandler.SpellLayers;
+import daxz.dev.spellwave.ImbuementSystem.SpellHandler.SpellRecipe;
 import daxz.dev.spellwave.Inventories.ImbuementTableInventory;
 import daxz.dev.spellwave.Registry.ItemRegistry;
 import daxz.dev.spellwave.Spellwave;
@@ -56,54 +57,9 @@ public class ImbuementTableHandler implements Listener {
 
         PersistentDataContainer imbuementTag = new CustomBlockData(event.getBlock(), Spellwave.instance);
         if (imbuementTag.getOrDefault(imbuementTableTag, PersistentDataType.BOOLEAN, false)){
-            PersistentDataContainer entitiesTag = new CustomBlockData(event.getBlock(), Spellwave.instance);
-            List<String> uuidStrings = entitiesTag.getOrDefault(
-                    highlightEntitiesKey,
-                    PersistentDataType.LIST.strings(),
-                    new ArrayList<>()
-            );
 
-            PersistentDataContainer centralItem = new CustomBlockData(event.getBlock(), Spellwave.instance);
-            if (!centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
-                UUID itemUUID = UUID.fromString(Objects.requireNonNull(centralItem.get(imbuementCentralItem, PersistentDataType.STRING)));
-                Entity entity = Bukkit.getEntity(itemUUID);
-                if (entity != null) {
-                    if (entity instanceof Item item) {
-                        item.setPickupDelay(50);
-                        item.setGravity(false);
-                        item.setVelocity(new Vector(0, -0.1, 0));
-                        centralItem.set(imbuementCentralItem, PersistentDataType.STRING, "");
-                    }
-                }
-            }
-
-            for (String uuidStr : uuidStrings) {
-                try {
-                    UUID uuid = UUID.fromString(uuidStr);
-                    Entity entity = Bukkit.getEntity(uuid);
-
-                    if (entity != null) {
-                        if (entity.getType() == EntityType.INTERACTION
-                                && !entity.getPersistentDataContainer().getOrDefault(imbuementItems, PersistentDataType.STRING, "").isEmpty()) {
-
-                            UUID droppedItemUUID = UUID.fromString(Objects.requireNonNull(
-                                    entity.getPersistentDataContainer().get(imbuementItems, PersistentDataType.STRING)));
-                            Entity droppedItemEntity = Bukkit.getEntity(droppedItemUUID);
-
-                            if (droppedItemEntity instanceof Item item) {
-                                item.setPickupDelay(25);
-                                item.setVelocity(item.getLocation().subtract(event.getBlock().getLocation()).toVector().add(new Vector(0,0.8,0)).multiply(new Vector(0.15,1,0.15)));
-                                Particle.EXPLOSION.builder()
-                                        .location(event.getBlock().getLocation().add(0,1,0))
-                                        .offset(0.1,0.1,0.1)
-                                        .spawn();
-                            }
-                        }
-                        entity.remove();
-                    }
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
+            clearLayers(event.getBlock());
+            dropCentralItem(event.getBlock());
 
             event.setDropItems(false);
             Item drop = event.getPlayer().getWorld().dropItem(event.getBlock().getLocation(), Objects.requireNonNull(ItemRegistry.getItem("imbuement_table")));
@@ -171,10 +127,17 @@ public class ImbuementTableHandler implements Listener {
                 }, 1L);
             }
             else{
-                ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
+//                ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
                 int maxLayers = detectValidImbuementArea(event.getClickedBlock());
-                if (maxLayers > 0){
+                if (maxLayers > 0 && !centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
                     SpellLayers layers = new SpellLayers(event.getClickedBlock(), player, maxLayers);
+                    SpellRecipe.createRecipe(event.getClickedBlock(), layers.getRingItemsRegistry());
+
+                    //TODO future animation effect after finishing the spell
+
+                    //drops finished item
+                    clearLayers(event.getClickedBlock());
+                    dropCentralItem(event.getClickedBlock());
                     return;
                 }
 
@@ -373,6 +336,60 @@ public class ImbuementTableHandler implements Listener {
         }
 
         return ring;
+    }
+
+    private void dropCentralItem(Block block){
+        PersistentDataContainer centralItem = new CustomBlockData(block, Spellwave.instance);
+        if (!centralItem.getOrDefault(imbuementCentralItem, PersistentDataType.STRING, "").isEmpty()){
+            UUID itemUUID = UUID.fromString(Objects.requireNonNull(centralItem.get(imbuementCentralItem, PersistentDataType.STRING)));
+            Entity entity = Bukkit.getEntity(itemUUID);
+            if (entity != null) {
+                if (entity instanceof Item item) {
+                    item.setPickupDelay(50);
+                    item.setGravity(false);
+                    item.setVelocity(new Vector(0, -0.1, 0));
+                    centralItem.set(imbuementCentralItem, PersistentDataType.STRING, "");
+                }
+            }
+        }
+    }
+
+    private void clearLayers(Block block) {
+        PersistentDataContainer entitiesTag = new CustomBlockData(block, Spellwave.instance);
+        List<String> uuidStrings = entitiesTag.getOrDefault(
+                highlightEntitiesKey,
+                PersistentDataType.LIST.strings(),
+                new ArrayList<>()
+        );
+        for (String uuidStr : uuidStrings) {
+            try {
+                UUID uuid = UUID.fromString(uuidStr);
+                Entity entity = Bukkit.getEntity(uuid);
+
+                if (entity != null) {
+                    if (entity.getType() == EntityType.INTERACTION
+                            && !entity.getPersistentDataContainer().getOrDefault(imbuementItems, PersistentDataType.STRING, "").isEmpty()) {
+
+                        UUID droppedItemUUID = UUID.fromString(Objects.requireNonNull(
+                                entity.getPersistentDataContainer().get(imbuementItems, PersistentDataType.STRING)));
+                        Entity droppedItemEntity = Bukkit.getEntity(droppedItemUUID);
+
+                        if (droppedItemEntity instanceof Item item) {
+                            item.setPickupDelay(25);
+                            item.setVelocity(item.getLocation().subtract(block.getLocation()).toVector().add(new Vector(0,0.8,0)).multiply(new Vector(0.15,1,0.15)));
+                            Particle.EXPLOSION.builder()
+                                    .location(block.getLocation().add(0,1,0))
+                                    .offset(0.1,0.1,0.1)
+                                    .spawn();
+                        }
+                    }
+                    entity.remove();
+                }
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
+
     }
 
 }
