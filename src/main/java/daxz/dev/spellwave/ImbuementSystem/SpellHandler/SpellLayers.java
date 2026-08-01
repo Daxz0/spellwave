@@ -10,12 +10,14 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
 import static daxz.dev.spellwave.Events.Workstations.ImbuementTableHandler.*;
+import static daxz.dev.spellwave.ImbuementSystem.SpellHandler.SpellRecipe.imbuementLayers;
 
 public class SpellLayers {
 
@@ -78,4 +80,6 @@ public class SpellLayers {
     public TreeMap<Integer, List<ItemStack>> getRingItemsRegistry() {
         return ringItemsRegistry;
     }
+
+
 }

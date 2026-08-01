@@ -140,4 +140,12 @@ public class SpellRecipe {
         return String.valueOf(value);
     }
 
+    public static List<PersistentDataContainer> getLayers(ItemStack itemStack) {
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null) return List.of();
+        PersistentDataContainer itemPDC = meta.getPersistentDataContainer();
+        List<PersistentDataContainer> layers = itemPDC.get(imbuementLayers, PersistentDataType.LIST.dataContainers());
+        return layers == null ? List.of() : layers;
+    }
+
 }
