@@ -27,7 +27,9 @@ public class SpellRunner implements Listener {
         ItemStack handItem = player.getInventory().getItemInMainHand();
 
         List<PersistentDataContainer> layers = SpellRecipe.getLayers(handItem);
-        if (layers.isEmpty()) return; // not an imbued item
+        player.sendMessage("a");
+        if (layers.isEmpty()) return;
+        player.sendMessage("b");
 
         Entity target = event.getRightClicked();
 
