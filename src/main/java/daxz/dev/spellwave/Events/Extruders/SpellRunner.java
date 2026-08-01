@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -21,24 +22,20 @@ import static daxz.dev.spellwave.ImbuementSystem.SpellHandler.SpellRecipe.*;
 public class SpellRunner implements Listener {
 
     @EventHandler
-    public void onPlayerRightClicksWithImbuedItem(PlayerInteractAtEntityEvent event) {
+    public void onPlayerRightClicksWithImbuedItem(PlayerInteractEvent event) {
 
         Player player = event.getPlayer();
         ItemStack handItem = player.getInventory().getItemInMainHand();
 
         List<PersistentDataContainer> layers = SpellRecipe.getLayers(handItem);
-        player.sendMessage("a");
         if (layers.isEmpty()) return;
-        player.sendMessage("b");
-
-        Entity target = event.getRightClicked();
 
         for (PersistentDataContainer layerPDC : layers) {
-            runLayer(player, target, layerPDC);
+            runLayer(player, layerPDC);
         }
     }
 
-    private void runLayer(Player player, Entity target, PersistentDataContainer layerPDC) {
+    private void runLayer(Player player, PersistentDataContainer layerPDC) {
         List<String> castingMaterials = layerPDC.getOrDefault(layerCastingMaterials, PersistentDataType.LIST.strings(), List.of());
         if (castingMaterials.isEmpty()) return; // layer had no casting item, spell-modifiers-only ring
 
@@ -55,7 +52,7 @@ public class SpellRunner implements Listener {
 
         // TODO: only Bolt exists right now
         switch (castingMaterials.getFirst()) {
-            case "Bolt" -> Bolt.fromModifiers(player, target, modifiers).createModifier();
+            case "Bolt" -> Bolt.fromModifiers(player, modifiers).createModifier();
             default -> {}
         }
     }

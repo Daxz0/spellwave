@@ -18,8 +18,8 @@ public class Bolt implements CastingModifier {
 
     public static final double BASE_RANGE = 15.0;
     public static final double BASE_SPEED = 1.0;
-    public static final double BASE_WIDTH = 0.3;
-    public static final Particle BASE_PARTICLE = Particle.WITCH;
+    public static final double BASE_WIDTH = 0;
+    public static final Particle BASE_PARTICLE = Particle.ELECTRIC_SPARK;
 
     private final Map<CastingModifierKey, Object> attributes = new EnumMap<>(CastingModifierKey.class);
 
@@ -42,16 +42,13 @@ public class Bolt implements CastingModifier {
     }
 
 
-    public static Bolt fromModifiers(Player player, Entity target, Map<CastingModifierKey, Float> modifiers) {
+    public static Bolt fromModifiers(Player player, Map<CastingModifierKey, Float> modifiers) {
         double range = BASE_RANGE + modifiers.getOrDefault(CastingModifierKey.RANGE, 0f);
         double speed = BASE_SPEED + modifiers.getOrDefault(CastingModifierKey.SPEED, 0f);
         double width = BASE_WIDTH + modifiers.getOrDefault(CastingModifierKey.WIDTH, 0f);
 
         Location startLoc = player.getEyeLocation();
 
-        if (target != null) {
-            return new Bolt(BASE_PARTICLE, range, speed, width, startLoc, target.getLocation());
-        }
         return new Bolt(BASE_PARTICLE, range, speed, width, startLoc);
     }
 
@@ -68,29 +65,35 @@ public class Bolt implements CastingModifier {
         Location endLoc = getValue(CastingModifierKey.END_LOC, Location.class);
         Particle particle = getValue(CastingModifierKey.PARTICLE, Particle.class);
 
-        // calculate based on speed
         int delay = 0;
-        int period = 0;
+        int period = Math.max(1, (int) Math.round(2 / Math.max(speed, 0.01)));
 
-        //create beam
         List<Location> beam;
         if (endLoc == null) {
             beam = ParticleMathLib.getPointsBetween(startLoc, startLoc.clone().add(startLoc.getDirection().normalize().multiply(range)), 0.5);
-        }
-        else{
+        } else {
             beam = ParticleMathLib.getPointsBetween(startLoc, endLoc, 0.5);
         }
-        int tick = 0;
-        BukkitTask task = new BukkitRunnable() {
+
+        new BukkitRunnable() {
+            int tick = 0;
+
             public void run() {
+                if (tick >= beam.size()) {
+                    cancel();
+                    return;
+                }
+
                 Location point = beam.get(tick);
                 particle.builder()
                         .location(point)
                         .offset(width, width, width)
+                        .force(true)
+                        .count(1)
                         .spawn();
 
-
+                tick++;
             }
-        }.runTaskTimer(Spellwave.getInstance(),delay,period);
+        }.runTaskTimer(Spellwave.getInstance(), delay, period);
     }
 }
