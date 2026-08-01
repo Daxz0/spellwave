@@ -3,6 +3,7 @@ package daxz.dev.spellwave;
 import daxz.dev.spellwave.Commands.ItemCommand;
 import daxz.dev.spellwave.Registry.EventRegister;
 import daxz.dev.spellwave.Registry.ItemRegistry;
+import daxz.dev.spellwave.Registry.SpellRegistry;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.jeff_media.customblockdata.CustomBlockData;
@@ -19,6 +20,7 @@ public final class Spellwave extends JavaPlugin {
         EventRegister.registerEvents();
         ItemRegistry.registerItems();
         CustomBlockData.registerListener(this);
+        SpellRegistry.register();
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
             commands.registrar().register(ItemCommand.itemHelper());

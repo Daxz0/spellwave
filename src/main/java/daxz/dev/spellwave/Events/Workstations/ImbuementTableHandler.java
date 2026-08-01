@@ -1,7 +1,7 @@
 package daxz.dev.spellwave.Events.Workstations;
 
 import com.jeff_media.customblockdata.CustomBlockData;
-import daxz.dev.spellwave.ImbuementSystem.SpellHandler.SpellLayer;
+import daxz.dev.spellwave.ImbuementSystem.SpellHandler.SpellLayers;
 import daxz.dev.spellwave.Inventories.ImbuementTableInventory;
 import daxz.dev.spellwave.Registry.ItemRegistry;
 import daxz.dev.spellwave.Spellwave;
@@ -172,14 +172,9 @@ public class ImbuementTableHandler implements Listener {
             }
             else{
                 ImbuementTableInventory UI = new ImbuementTableInventory(Spellwave.instance);
-                int layers = detectValidImbuementArea(event.getClickedBlock());
-                if (layers > 0){
-                    //run spell check here
-
-                    SpellLayer.completeRecipe(event.getClickedBlock(), player, layers);
-
-
-
+                int maxLayers = detectValidImbuementArea(event.getClickedBlock());
+                if (maxLayers > 0){
+                    SpellLayers layers = new SpellLayers(event.getClickedBlock(), player, maxLayers);
                     return;
                 }
 
@@ -245,12 +240,12 @@ public class ImbuementTableHandler implements Listener {
         Location scanningLoc = imbuementTable.getLocation().add(0, -1, 0);
 
         int minRings = 1;
-        int maxRings = 7;
+        int maxRings = 1; //TODO lets just get 1 ring working for now
 
         Map<Block, Integer> validBlocks = new LinkedHashMap<>();
         int depthReached = 0;
 
-        if (scanningLoc.getBlock().getType() != Material.AMETHYST_BLOCK) return false;
+        if (scanningLoc.getBlock().getType() != Material.AMETHYST_BLOCK) return 0;
 
         for (int i = 1; i <= maxRings; i++) {
             List<Block> ring = getRing(scanningLoc, i);
