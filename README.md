@@ -17,5 +17,7 @@ There is currently only support for amethyst shard and rabbit foot, more more mo
 This plugin is made for 26.1.2 and for **PaperMc** specifically. Install [PaperMC](https://papermc.io/), and then drag this plugin into the plugins folder.
 You can find the JAR file in the releases of this repository.
 
+Awaiting modrinth approval [here](https://modrinth.com/plugin/spellwave). Download releases for now.
+
 # Video Demo
 https://youtu.be/2K1xSTuTyjY
